@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dr.Math</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="index.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:white;text-align:center;transition:0.3s;}
+.light{background:linear-gradient(135deg,#ffffff,#dddddd);color:black;}
+#container{width:95%;max-width:1200px;margin:20px auto;background:rgba(0,0,0,0.85);padding:20px;border-radius:15px;}
+.light #container{ background:white;}
+input{width:80%;padding:12px;border-radius:8px;border:none;font-size:16px;}
+button{padding:8px 14px;margin:4px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
+#answer{margin-top:15px;font-size:18px;text-align:left;}
+#steps{margin-top:15px;background:#222;padding:10px;border-radius:10px;text-align:left;}
+.light #steps{background:#eee;}
+#memory{margin-top:20px;background:#111;padding:10px;border-radius:10px;height:150px;overflow:auto;text-align:left;}
+.light #memory{background:#eee;}
+#graph{margin-top:20px;height:500px;touch-action:none;}
+#calculator{display:none;margin-top:20px;background:#111;padding:15px;border-radius:12px;}
+.light #calculator{background:#f5f5f5;}
+.calc-btn{width:70px;height:45px;margin:3px;}
+@media(max-width:600px){#graph{height:300px;}.calc-btn{width:50px;height:40px;}input{width:95%;}}
+</style>
+</head>
+<body>
+<h1>🧠Dr.Math</h1>
+<div id="container">
+<input type="text" id="question" placeholder="Ask any math question, equation, or function to graph..."><br>
+<button onclick="solve()">Solve / Teach / Graph</button>
+
+<button onclick="toggleCalculator()">📟 Calculator</button>
+<button onclick="toggleTheme()">🌗 Dark/Light</button>
+<button onclick="clearAll()">Clear</button>
+<button onclick="clearMemory()">Clear Memory</button>
+
+<div id="answer"></div>
+<div id="steps"></div>
+<div id="memory"></div>
+<div id="graph"></div>
+
+<div id="calculator">
+<h2>Ultimate Scientific Calculator</h2>
+<input type="text" id="calc-display" readonly style="width:95%; margin-bottom:10px;"><br>
+
+<!-- Full calculator buttons -->
+<div>
+<button class="calc-btn" onclick="addToCalc('Math.abs(')">|x|</button>
+<button class="calc-btn" onclick="addToCalc('Math.floor(')">floor</button>
+<button class="calc-btn" onclick="addToCalc('Math.ceil(')">ceil</button>
+<button class="calc-btn" onclick="addToCalc('(')">(</button>
+<button class="calc-btn" onclick="addToCalc(')')">)</button>
+<button class="calc-btn" onclick="addToCalc('Math.PI')">π</button>
+<button class="calc-btn" onclick="addToCalc('Math.E')">e</button>
+<button class="calc-btn" onclick="addToCalc('1.6180339887')">φ</button>
+<button class="calc-btn" onclick="addToCalc('6.022e23')">NA</button>
+<button class="calc-btn" onclick="addToCalc('2.998e8')">c</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="toggleSecond()">2nd</button>
+<button class="calc-btn" onclick="addToCalc('Math.sin(')" id="sinBtn">sin</button>
+<button class="calc-btn" onclick="addToCalc('Math.cos(')" id="cosBtn">cos</button>
+<button class="calc-btn" onclick="addToCalc('Math.tan(')" id="tanBtn">tan</button>
+<button class="calc-btn" onclick="addToCalc('Math.asin(')" id="asinBtn">sin⁻¹</button>
+<button class="calc-btn" onclick="addToCalc('Math.acos(')" id="acosBtn">cos⁻¹</button>
+<button class="calc-btn" onclick="addToCalc('Math.atan(')" id="atanBtn">tan⁻¹</button>
+<button class="calc-btn" onclick="addToCalc('Math.sinh(')">sinh</button>
+<button class="calc-btn" onclick="addToCalc('Math.cosh(')">cosh</button>
+<button class="calc-btn" onclick="addToCalc('Math.tanh(')">tanh</button>
+
+</div>
+
+<div>
+<button class="calc-btn" onclick="addToCalc('**2')">x²</button>
+<button class="calc-btn" onclick="addToCalc('**3')">x³</button>
+<button class="calc-btn" onclick="addToCalc('**')">xʸ</button>
+<button class="calc-btn" onclick="addToCalc('Math.sqrt(')">√x</button>
+<button class="calc-btn" onclick="addToCalc('Math.cbrt(')">∛x</button>
+<button class="calc-btn" onclick="addToCalc('!')">!</button>
+<button class="calc-btn" onclick="addToCalc('i')">i</button>
+<button class="calc-btn" onclick="addToCalc('nPr(')">nPr</button>
+<button class="calc-btn" onclick="addToCalc('nCr(')">nCr</button>
+<button class="calc-btn" onclick="addToCalc('e+')">Sci Not</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="addToCalc('7')">7</button>
+<button class="calc-btn" onclick="addToCalc('8')">8</button>
+<button class="calc-btn" onclick="addToCalc('9')">9</button>
+<button class="calc-btn" onclick="addToCalc('/')">÷</button>
+<button class="calc-btn" onclick="memorySub()">M-</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="addToCalc('4')">4</button>
+<button class="calc-btn" onclick="addToCalc('5')">5</button>
+<button class="calc-btn" onclick="addToCalc('6')">6</button>
+<button class="calc-btn" onclick="addToCalc('*')">×</button>
+<button class="calc-btn" onclick="memoryAdd()">M+</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="addToCalc('1')">1</button>
+<button class="calc-btn" onclick="addToCalc('2')">2</button>
+<button class="calc-btn" onclick="addToCalc('3')">3</button>
+<button class="calc-btn" onclick="addToCalc('-')">−</button>
+<button class="calc-btn" onclick="addToCalc('+')">+</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="addToCalc('0')">0</button>
+<button class="calc-btn" onclick="addToCalc('.')">.</button>
+<button class="calc-btn" onclick="memoryRecall()">MR</button>
+<button class="calc-btn" onclick="memoryClear()">MC</button>
+<button class="calc-btn" onclick="addToCalc('Math.log10(')">log</button>
+</div>
+
+<div>
+<button class="calc-btn" onclick="calculate()">=</button>
+<button class="calc-btn" onclick="clearCalc()">C</button>
+<button class="calc-btn" onclick="addToCalc('Math.pow(10,')">antilog</button>
+</div>
+</div>
+
+<script>
+
+// =============================
+// UNIVERSAL MATH TEACHING ENGINE
+// =============================
+
+function teachTopic(input){
+    input = input.toLowerCase();
+
+    const lessons = {
+
+        "algebra": `
+        <h3>Algebra</h3>
+        Algebra is about using letters (like x) to represent numbers.
+        Example:
+        2x + 3 = 7
+        Step 1: Subtract 3 from both sides
+        2x = 4
+        Step 2: Divide both sides by 2
+        x = 2
+        `,
+
+        "quadratic": `
+        <h3>Quadratic Equation</h3>
+        Standard form: ax² + bx + c = 0
+        
+        Formula:
+        x = (-b ± √(b² - 4ac)) / 2a
+        
+        Example:
+        x² - 5x + 6 = 0
+        
+        Factor:
+        (x - 2)(x - 3)
+        
+        x = 2 or x = 3
+        `,
+
+        "trigonometry": `
+        <h3>Trigonometry</h3>
+        SOH CAH TOA
+        
+        sin(θ) = Opposite / Hypotenuse
+        cos(θ) = Adjacent / Hypotenuse
+        tan(θ) = Opposite / Adjacent
+        
+        Example:
+        If opposite=3 and hypotenuse=5:
+        sin(θ)=3/5
+        `,
+
+        "calculus": `
+        <h3>Calculus Basics</h3>
+        Derivative means rate of change.
+        
+        If f(x) = x²
+        f'(x) = 2x
+        
+        Integral means area under curve.
+        ∫ x dx = x²/2 + C
+        `,
+
+        "geometry": `
+        <h3>Geometry</h3>
+        Area of Circle = πr²
+        Perimeter of Rectangle = 2(l + w)
+        Pythagoras:
+        a² + b² = c²
+        `,
+
+        "statistics": `
+        <h3>Statistics</h3>
+        Mean = Sum of values / Number of values
+        
+        Variance measures spread.
+        Standard deviation = √variance
+        `,
+
+        "probability": `
+        <h3>Probability</h3>
+        Probability = Favorable outcomes / Total outcomes
+        
+        Example:
+        Probability of getting head in coin toss = 1/2
+        `,
+
+        "matrix": `
+        <h3>Matrices</h3>
+        A matrix is a rectangular array of numbers.
+        
+        Addition:
+        Add corresponding elements.
+        
+        Multiplication:
+        Row × Column rule.
+        `,
+
+        "logarithm": `
+        <h3>Logarithms</h3>
+        logₐ(b) means:
+        a raised to what power gives b?
+        
+        log₁₀(100) = 2
+        because 10² = 100
+        `
+    };
+
+    for(let topic in lessons){
+        if(input.includes(topic)){
+            return lessons[topic];
+        }
+    }
+
+    return null;
+}
+
+
+// CALCULATOR CORE
+let memory=0;
+function memoryAdd(){memory+=Number(document.getElementById("calc-display").value);}
+function memorySub(){memory-=Number(document.getElementById("calc-display").value);}
+function memoryRecall(){document.getElementById("calc-display").value=memory;}
+function memoryClear(){memory=0;}
+function addToCalc(value){document.getElementById("calc-display").value+=value;}
+function clearCalc(){document.getElementById("calc-display").value="";}
+function factorial(n){if(n===0)return 1;let r=1;for(let i=1;i<=n;i++) r*=i; return r;}
+function permutation(n,r){return factorial(n)/factorial(n-r);}
+function combination(n,r){return factorial(n)/(factorial(r)*factorial(n-r));}
+function calculate(){
+  try{
+    let display=document.getElementById("calc-display");
+    let expr=display.value.replace(/(\d+)!/g,(m,n)=>factorial(parseInt(n)));
+    expr=expr.replace(/nPr\((\d+),(\d+)\)/g,(m,n,r)=>permutation(parseInt(n),parseInt(r)));
+    expr=expr.replace(/nCr\((\d+),(\d+)\)/g,(m,n,r)=>combination(parseInt(n),parseInt(r)));
+    expr=expr.replace(/e\+/g,"e");
+    display.value=eval(expr);
+  }catch{display.value="Error";}
+}
+
+// AI CALCULATOR INTEGRATION
+function aiCalculate(expr){
+    try{
+        expr=expr.replace(/(\d+)!/g,(m,n)=>factorial(parseInt(n)));
+        expr=expr.replace(/nPr\((\d+),(\d+)\)/g,(m,n,r)=>permutation(parseInt(n),parseInt(r)));
+        expr=expr.replace(/nCr\((\d+),(\d+)\)/g,(m,n,r)=>combination(parseInt(n),parseInt(r)));
+        expr=expr.replace(/e\+/g,"e");
+        return eval(expr);
+    }catch{return "Error";}
+}
+
+/* MEMORY */
+let memoryLog=[];
+function addToMemory(q,a){
+memoryLog.push("You: "+q);
+memoryLog.push("AI: "+a);
+document.getElementById("memory").innerText=memoryLog.join("\n");
+}
+function clearMemory(){
+memoryLog=[];
+document.getElementById("memory").innerText="";
+}
+/* VOICE */
+function speak(text){
+let s=new SpeechSynthesisUtterance(text);
+speechSynthesis.cancel();
+speechSynthesis.speak(s);
+
+}
+function startListening(){
+if(!('webkitSpeechRecognition' in window)){
+alert("Voice not supported on this device.");
+return;
+}
+let r=new webkitSpeechRecognition();
+r.lang="en-US";
+r.start();
+r.onresult=function(e){
+document.getElementById("question").value=e.results[0][0].transcript;
+solve();
+}
+
+}
+
+
+
+
+// AI SOLVER
+function solve(){
+
+let q=document.getElementById("question").value.trim();
+if(!q) return;
+let answer="";
+let steps="";
+    try{
+        if(q.toLowerCase().includes("graph")||q.includes("plot")||q.includes("draw")){
+            let expr=q.replace(/graph|plot|draw/gi,'').trim(); drawGraph(expr); answerText="Graph plotted: "+expr;
+            speak(q + answerText);addToMemory(q,answerText);
+        } 
+        else {
+            let result=aiCalculate(q);
+            answerText="Answer: "+result;
+            speak(result);
+            stepsText="Computed using AI-calculator logic: "+result;
+        }
+        let eq = solveAlgebra(q);
+        if(eq){
+        answerText = eq;
+        stepsText = "Solved using built-in algebra engine.";
+
+}
+
+
+        // check simultaneous equations
+        if(q.includes(";")){
+        let eqs = q.split(";")
+        let sim = solveSimultaneous(eqs[0],eqs[1])
+        if(sim){
+        answerText = "Simultaneous Solution: "+sim
+        stepsText = "AI solved two equations together."
+}
+}
+        // check inequality
+        else{
+         
+        let alg = solveAlgebra(q);
+        if(alg){
+        answerText = alg;
+        speak(alg);
+        stepsText = "Solved using built-in algebra engine.";
+}
+
+}
+        let lesson = teachTopic(q);
+        if(lesson){
+        document.getElementById("answer").innerHTML = lesson;
+        speak(lesson);
+        return;
+        }
+    }
+    catch(e){answerText="Cannot compute."; stepsText="";}
+    document.getElementById("answer").innerHTML=answerText;
+    document.getElementById("steps").innerHTML=stepsText;
+    addToMemory(q,answerText);speak(answerText,lesson); 
+    
+    
+   
+}
+
+/* THEME */
+
+function toggleTheme(){
+
+document.body.classList.toggle("light");
+
+}
+// GRAPHING ENGINE (UPGRADED)
+
+let graphState = {
+offsetX:0,
+offsetY:0,
+scale:40,
+drag:false,
+lastX:0,
+lastY:0
+};
+
+function drawGraph(expr){
+
+let graph = document.getElementById("graph");
+graph.innerHTML = "";
+
+let width = graph.clientWidth;
+let height = graph.clientHeight;
+
+let canvas = document.createElement("canvas");
+canvas.width = width;
+canvas.height = height;
+
+graph.appendChild(canvas);
+
+let ctx = canvas.getContext("2d");
+
+expr = expr
+.replace(/sin/g,"Math.sin")
+.replace(/cos/g,"Math.cos")
+.replace(/tan/g,"Math.tan")
+.replace(/sqrt/g,"Math.sqrt")
+.replace(/log/g,"Math.log10")
+.replace(/ln/g,"Math.log")
+.replace(/π/g,"Math.PI")
+.replace(/\^/g,"**");
+
+function render(){
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,width,height);
+
+ctx.strokeStyle="#333";
+ctx.lineWidth=1;
+
+// grid vertical
+for(let i=-width;i<width;i+=graphState.scale){
+
+ctx.beginPath();
+ctx.moveTo(i+width/2+graphState.offsetX,0);
+ctx.lineTo(i+width/2+graphState.offsetX,height);
+ctx.stroke();
+}
+
+// grid horizontal
+for(let j=-height;j<height;j+=graphState.scale){
+ctx.beginPath();
+ctx.moveTo(0,j+height/2+graphState.offsetY);
+ctx.lineTo(width,j+height/2+graphState.offsetY);
+ctx.stroke();
+}
+
+// axis
+ctx.strokeStyle="white";
+ctx.lineWidth=2;
+
+ctx.beginPath();
+ctx.moveTo(width/2+graphState.offsetX,0);
+ctx.lineTo(width/2+graphState.offsetX,height);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(0,height/2+graphState.offsetY);
+ctx.lineTo(width,height/2+graphState.offsetY);
+ctx.stroke();
+
+// function graph
+ctx.strokeStyle="cyan";
+ctx.lineWidth=2;
+
+ctx.beginPath();
+
+for(let i=0;i<=width;i++){
+
+let x = (i-width/2-graphState.offsetX)/graphState.scale;
+
+let y;
+
+try{
+y = Function("x","return "+expr)(x);
+}catch{
+y = NaN;
+}
+
+if(!isNaN(y)){
+let py = height/2 - y*graphState.scale + graphState.offsetY;
+
+if(i===0) ctx.moveTo(i,py);
+else ctx.lineTo(i,py);
+}
+
+}
+
+ctx.stroke();
+
+}
+
+render();
+
+// ZOOM
+canvas.onwheel = function(e){
+e.preventDefault();
+if(e.deltaY < 0) graphState.scale *= 1.1;
+else graphState.scale /= 1.1;
+render();
+}
+
+// PAN
+canvas.onmousedown = function(e){
+graphState.drag = true;
+graphState.lastX = e.clientX;
+graphState.lastY = e.clientY;
+}
+
+canvas.onmouseup = function(){
+graphState.drag = false;
+}
+
+canvas.onmousemove = function(e){
+if(graphState.drag){
+graphState.offsetX += e.clientX - graphState.lastX;
+graphState.offsetY += e.clientY - graphState.lastY;
+
+graphState.lastX = e.clientX;
+graphState.lastY = e.clientY;
+
+render();
+}
+}
+
+}
+
+// CLEAR
+function clearAll(){document.getElementById("question").value=""; document.getElementById("answer").innerText=""; document.getElementById("steps").innerHTML="";}
+function toggleCalculator(){document.getElementById("calculator").style.display=(document.getElementById("calculator").style.display==='none')?'block':'none';}
+let secondMode=false;
+function toggleSecond(){secondMode=!secondMode;}
+
+</script>
+</body>
+</html>
+
